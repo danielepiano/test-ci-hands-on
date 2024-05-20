@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 // ############################### PROBLEM 1: Balanced Number [lvl 1] #############################################
 //  A balanced number is a number where the sum of digits to the left of the middle digit(s)
@@ -39,10 +40,20 @@
 //  sum of all digits to the right of the middle digit(s) -> 20
 //  10 and 20 are not equal, so it's not balanced.
 
-std::string balancedNum(unsigned long long int number)
-{
-  // your code here
-  return "";
+std::string balancedNum(unsigned long long int number) {
+    auto number_str = std::to_string(number);
+
+    int left_sum = 0;
+    int right_sum = 0;
+
+    int middle_idx = number_str.size() / 2;
+    for (int ii = 0; number_str.size() % 2 ? ii <= middle_idx : ii < middle_idx; ++ii) {
+        left_sum += number_str[ii] - '0';
+    }
+    for (int ii = middle_idx; ii < number_str.size(); ++ii) {
+        right_sum += number_str[ii] - '0';
+    }
+    return left_sum == right_sum ? "Balanced" : "Not Balanced";
 }
 
 // ********************************************************************************************************
@@ -57,8 +68,17 @@ std::string balancedNum(unsigned long long int number)
 // "moOse" --> false (ignore letter case)
 
 bool is_isogram(std::string str) {
-  // your code here
-  return false;
+    std::unordered_set<char> used_chars;
+
+    for (char cc: str) {
+        char lower_cc = std::tolower(cc);
+        if (used_chars.find(lower_cc) != used_chars.end()) {
+            return false;
+        }
+        used_chars.insert(cc);
+    }
+
+    return true;
 }
 
 // ********************************************************************************************************
@@ -66,7 +86,7 @@ bool is_isogram(std::string str) {
 // ############################### PROBLEM 3: All or Nothing [lvl 1] #############################################
 // Suppose a student can earn 100% on an exam by getting the answers all correct or all incorrect. 
 // Given a potentially incomplete answer key and the student's answers, 
-// write a function that determines whether or not a student can still score 100%. 
+// write a function that determines whether a student can still score 100%.
 // Incomplete questions are marked with an underscore, "_".
 
 // ["A", "_", "C", "_", "B"]   # answer key
@@ -104,9 +124,28 @@ bool is_isogram(std::string str) {
 // Test has at least one question.
 // len(key) == len(answers)
 
-bool possibly_perfect(const std::vector<char>& key, const std::vector<char>& answers)
-{
-    // your code here
+bool possibly_perfect(const std::vector<char> &key, const std::vector<char> &answers) {
+    bool is_first_time = true;
+    bool should_all_be_right;
+
+    if (key.size() != answers.size()) {
+        return false;
+    }
+
+    for (int ii = 0; ii < key.size(); ++ii) {
+        char kk = key.at(ii);
+        if (kk == '_') {
+            continue;
+        }
+        char aa = answers.at(ii);
+        if (is_first_time) {
+            should_all_be_right = kk == aa;
+        } else {
+            if (should_all_be_right && kk != aa || !should_all_be_right && kk == aa) {
+                return false;
+            }
+        }
+    }
     return true;
 }
 
@@ -123,10 +162,22 @@ bool possibly_perfect(const std::vector<char>& key, const std::vector<char>& ans
 //  [0,1,0,1,0] should return 0, because it occurs 3 times (which is odd).
 //  [1,2,2,3,3,3,4,3,3,3,2,2,1] should return 4, because it appears 1 time (which is odd).
 
-int findOdd(const std::vector<int> &numbers)
-{
-  // your code here
-  return 1;
+int findOdd(const std::vector<int> &numbers) {
+    std::unordered_map<int, bool> odd_count;
+
+    for (int num: numbers) {
+        if (odd_count.find(num) != odd_count.end()) {
+            odd_count[num] = !odd_count.at(num);
+        } else {
+            odd_count[num] = true;
+        }
+    }
+
+    for (auto it = odd_count.begin(); it != odd_count.end(); ++it) {
+        if (it->second) return it->first;
+    }
+
+    return -1;
 }
 
 // ********************************************************************************************************
@@ -147,13 +198,33 @@ int findOdd(const std::vector<int> &numbers)
 // For the sake of simplicity, you can assume that any numbers passed into the function will correspond to vowels.
 
 std::string encode(const std::string &str) {
-  // your code here
-  return "";
+    std::unordered_map<char, char> vowel_encoding = {
+            {'a', '1'},
+            {'e', '2'},
+            {'i', '3'},
+            {'o', '4'},
+            {'u', '5'}
+    };
+    std::string encoded_str;
+    for (const char &c: str) {
+        encoded_str += vowel_encoding.find(c) == vowel_encoding.end() ? c : vowel_encoding[c];
+    }
+    return encoded_str;
 }
 
 std::string decode(const std::string &str) {
-  // your code here
-  return "";
+    std::unordered_map<char, char> vowel_decoding = {
+            {'1', 'a'},
+            {'2', 'e'},
+            {'3', 'i'},
+            {'4', 'o'},
+            {'5', 'u'}
+    };
+    std::string decoded_str;
+    for (const char &c: str) {
+        decoded_str += vowel_decoding.find(c) == vowel_decoding.end() ? c : vowel_decoding[c];
+    }
+    return decoded_str;
 }
 
 // ********************************************************************************************************
@@ -194,9 +265,33 @@ std::string decode(const std::string &str) {
 // You must return all possible bananas, but the order does not matter
 // The example output above is formatted for readability. Please refer to the example tests for expected format of your result.
 
-std::unordered_set<std::string> bananas(const std::string& s) {
-    // your code here
-    return {};
+void find_matching(const std::string ref, const std::string test, int ref_idx, int test_idx, std::string temp_str,
+                   std::unordered_set <std::string> matching) {
+    // if "banana" has been detected, replace the rest of the tested string with '-' and save the string
+    if (ref_idx == ref.size()) {
+        for (int i = 0; i < test.size(); ++i) {
+            temp_str += "-";
+        }
+        matching.insert(temp_str);
+        return;
+    }
+
+    // otherwise keep searching for the rest of "banana" given the ref_idx (the letter you're searching for)
+    //  starting from a certain point test_idx in the given string to test
+    for (int i = test_idx; i < test.size(); ++i) {
+        if (test[test_idx] == ref[ref_idx]) {
+            find_matching(ref, test, ref_idx + 1, test_idx + 1, temp_str + test[i], matching);
+        }
+        temp_str += "-";
+    }
 }
+
+std::unordered_set <std::string> bananas(const std::string &s) {
+    std::unordered_set <std::string> bananas;
+
+    find_matching("banana", s, 0, 0, "", bananas);
+}
+
+
 
 // ********************************************************************************************************
