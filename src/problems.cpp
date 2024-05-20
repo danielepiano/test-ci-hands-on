@@ -265,13 +265,19 @@ std::string decode(const std::string &str) {
 // You must return all possible bananas, but the order does not matter
 // The example output above is formatted for readability. Please refer to the example tests for expected format of your result.
 
+#include <iostream>
+
 void find_matching(const std::string ref, const std::string test, int ref_idx, int test_idx, std::string temp_str,
-                   std::unordered_set <std::string> matching) {
+                   std::unordered_set<std::string> &matching) {
+    std::cout << "Searching " << ref[ref_idx] << ref_idx << " from " << test_idx <<
+              ": " << temp_str << std::endl;
     // if "banana" has been detected, replace the rest of the tested string with '-' and save the string
     if (ref_idx == ref.size()) {
-        for (int i = 0; i < test.size(); ++i) {
+        std::cout << "- banana found: " << temp_str << " " << test_idx << "/" << test.size() << std::endl;
+        for (int i = temp_str.size(); i < test.size(); ++i) {
             temp_str += "-";
         }
+        std::cout << "| final banana: " << temp_str << std::endl;
         matching.insert(temp_str);
         return;
     }
@@ -279,19 +285,18 @@ void find_matching(const std::string ref, const std::string test, int ref_idx, i
     // otherwise keep searching for the rest of "banana" given the ref_idx (the letter you're searching for)
     //  starting from a certain point test_idx in the given string to test
     for (int i = test_idx; i < test.size(); ++i) {
-        if (test[test_idx] == ref[ref_idx]) {
-            find_matching(ref, test, ref_idx + 1, test_idx + 1, temp_str + test[i], matching);
+        if (test[i] == ref[ref_idx]) {
+            std::cout << "Found " << test[test_idx] << " at " << i << std::endl;
+            find_matching(ref, test, ref_idx + 1, i + 1, temp_str + test[i], matching);
         }
         temp_str += "-";
     }
 }
 
-std::unordered_set <std::string> bananas(const std::string &s) {
-    std::unordered_set <std::string> bananas;
-
+std::unordered_set<std::string> bananas(const std::string &s) {
+    std::unordered_set<std::string> bananas;
     find_matching("banana", s, 0, 0, "", bananas);
+    return bananas;
 }
-
-
 
 // ********************************************************************************************************
