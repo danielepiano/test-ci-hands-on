@@ -22,17 +22,6 @@ jobs:
       - name: Build
         run: cmake --build build
 
-  test:
-    needs:
-      - build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1
-      - name: Configure CMake
-        run: cmake -S . -B build
       - name: Run Tests
         run: ctest --test-dir build
 
