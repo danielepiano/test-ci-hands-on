@@ -13,11 +13,19 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # Source file della main app
-add_executable(ExerciseSession src/main.cpp src/problems.cpp)
+add_executable(ExerciseSession
+        src/main.cpp
+        src/problems.cpp
+)
 
 # Source files dei test
-add_executable(tests tests/tests.cpp src/problems.cpp)
-target_link_libraries(tests gtest_main)
+add_executable(tests
+        tests/tests.cpp
+        src/problems.cpp
+)
+target_link_libraries(tests
+        GTest::gtest_main
+)
 include(GoogleTest)
 gtest_discover_tests(tests)
 
