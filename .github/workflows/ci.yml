@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # Doesn't actually make sense to format it during the pipeline
       # Maybe a format check would make sense to validate a pull-request
@@ -21,7 +21,7 @@ jobs:
         run: clang-format -i src/*.cpp src/*.h tests/*.cpp
 
       - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v1
+        uses: jwlawson/actions-setup-cmake@v2
       - name: Configure CMake
         run: cmake -S . -B build
 
@@ -32,7 +32,7 @@ jobs:
         run: ctest --test-dir build
 
       - name: Upload executable artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: executable
           path: build/ExerciseSession
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install cppcheck
         run: sudo apt-get install cppcheck
       - name: Run cppcheck
